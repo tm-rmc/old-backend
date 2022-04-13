@@ -15,7 +15,8 @@ class APIInfoController {
             version: pkg.version,
             description: pkg.description,
             dependencies: pkg.dependencies,
-            headers: req.headers
+            ["user-agent"]: req.headers["user-agent"],
+            host: req.headers["x-forwarded-host"] || req.headers.host,
         });
     }
 }
