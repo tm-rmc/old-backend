@@ -1,0 +1,32 @@
+{
+  "name": "rmc-api",
+  "version": "1.0.0",
+  "private": true,
+  "description": "The backend for the Random Map Challenge",
+  "main": "src/index.js",
+  "scripts": {
+    "start": "node .",
+    "lint": "eslint . --fix"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/GreepTheSheep/node-rmc-api.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/GreepTheSheep/node-rmc-api/issues"
+  },
+  "homepage": "https://github.com/GreepTheSheep/node-rmc-api#readme",
+  "dependencies": {
+    "body-parser": "^1.20.0",
+    "cors": "^2.8.5",
+    "dotenv": "^16.0.0",
+    "express": "^4.17.3",
+    "http-errors": "^2.0.0",
+    "morgan": "^1.10.0"
+  },
+  "devDependencies": {
+    "eslint": "^8.13.0"
+  }
+}
