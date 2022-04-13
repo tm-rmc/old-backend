@@ -1,7 +1,5 @@
+const APIInfos = require('./Controllers/API-info');
+
 module.exports = (app) => {
-    app.get('/', (req, res) => {
-        res.json({
-            message: 'Hello World!'
-        });
-    });
+    app.get('/', APIInfos.getAPIInfo);
 };

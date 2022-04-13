@@ -6,6 +6,7 @@
   "main": "src/index.js",
   "scripts": {
     "start": "node .",
+    "dev": "nodemon",
     "lint": "eslint . --fix"
   },
   "repository": {
@@ -25,9 +26,11 @@
     "express": "^4.17.3",
     "http-errors": "^2.0.0",
     "morgan": "^1.10.0",
-    "mysql": "^2.18.1"
+    "mysql": "^2.18.1",
+    "trackmania.io": "^3.1.0"
   },
   "devDependencies": {
-    "eslint": "^8.13.0"
+    "eslint": "^8.13.0",
+    "nodemon": "^2.0.15"
   }
 }

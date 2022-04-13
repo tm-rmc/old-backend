@@ -8,7 +8,7 @@ const express = require('express'),
     port = process.env.PORT || 3000;
 
 app.use(bosyParser.json());
-app.use(logger('dev'));
+app.use(logger('combined'));
 app.use(cors());
 
 require('./Classes/DB').connect().then((pool)=>{
@@ -29,7 +29,7 @@ app.use(function(req, res, next) {
 });
 
 // error handler
-app.use(function(err, req, res) {
+app.use(function(err, req, res, next) {
     // set locals, only providing error in development
     res.locals.message = err.message;
     res.locals.error = err;
