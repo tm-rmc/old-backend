@@ -11,11 +11,17 @@ app.use(bosyParser.json());
 app.use(logger('dev'));
 app.use(cors());
 
-require('./routes')(app);
-
-app.listen(port, () => {
-    console.log(`✅ Listening on port ${port}`);
+require('./Classes/DB').connect().then((pool)=>{
+    console.log('📔 Connected to the database. Connexion ID: ' + pool.threadId);
+    app.listen(port, () => {
+        console.log(`✅ Listening on port ${port}`);
+    });
+}).catch(err=>{
+    console.error('❌ Database error: ' + err);
+    process.exit(1);
 });
+
+require('./routes')(app);
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {
