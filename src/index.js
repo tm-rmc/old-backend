@@ -5,7 +5,7 @@ const express = require('express'),
     cors = require('cors'),
     app = express(),
     logger = require('morgan'),
-    port = process.env.APP_PORT || 3000;
+    port = process.env.PORT || 3000;
 
 app.use(bosyParser.json());
 app.use(logger('dev'));
