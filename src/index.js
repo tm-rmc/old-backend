@@ -5,7 +5,15 @@ const express = require('express'),
     cors = require('cors'),
     app = express(),
     logger = require('morgan'),
-    port = process.env.PORT || 3000;
+    port = process.env.PORT || 3000,
+    Discord = require('./Discord');
+
+let dcClient = null;
+
+if ('DISCORD_TOKEN' in process.env) {
+    dcClient = new Discord();
+    app.use(dcClient.loggerToDiscord());
+}
 
 app.use(bosyParser.json());
 app.use(logger('combined'));
