@@ -32,8 +32,6 @@ class OAuthModel
             else throw "Unknown Error from the OAuth API"
         }
 
-        resJson.expires_in = new Date().setSeconds(new Date().getSeconds() + resJson.expires_in);
-
         return resJson;
     }
 

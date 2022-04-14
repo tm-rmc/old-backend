@@ -1,5 +1,3 @@
-const { use } = require('express/lib/application');
-
 const DbContext = require('../DbContext'),
     User = require('../Entities/User'),
     DB = require("../Classes/DB"),
@@ -35,6 +33,17 @@ class UserModel
         if (accountId.length != 36) throw "Invalid account ID";
         return DbContext.Users().then(users => {
             return users.find(user => user.accountId === accountId);
+        });
+    }
+
+    /**
+     * Get from a token
+     * @param {string} token
+     */
+    static async getFromToken(token)
+    {
+        return DbContext.Users().then(users => {
+            return users.find(user => user.accessToken === token);
         });
     }
 

@@ -1,15 +1,39 @@
 const { Client, Intents } = require('discord.js'),
     client = new Client({
         intents: [Intents.FLAGS.GUILDS, Intents.FLAGS.GUILD_MESSAGES]
-    });
+    }),
+    fs = require('fs');
 
 class Discord {
     constructor() {
         this.client = client;
         this.client.login();
 
+        this.commandFiles = [];
+
         this.client.on('ready', ()=>{
             this.logToChannel('📡 Logged in as ' + this.client.user.tag);
+            fs.readdirSync('./src/Discord/cmds').forEach(file => {
+                if (file.endsWith('.js')) {
+                    let commandFile = require(`./cmds/${file}`);
+                    this.commandFiles.push(commandFile);
+                }
+            });
+        });
+
+        this.client.on('messageCreate', message=>{
+            if (message.author.bot) return;
+            if (!message.content.startsWith(`<@${this.client.user.id}>`)) return;
+            // remove the mention + space
+            let command = message.content.substring(`<@${this.client.user.id}> `.length),
+                args = command.split(' ');
+            command = args.shift();
+
+            if (command.length == 0) return message.reply('All '+this.commandFiles.length+' commands: ```\n' + this.commandFiles.map(c=>c.name).join('\n') + '```');
+
+            if (this.commandFiles.some(c=>c.name == command)) {
+                this.commandFiles.find(c=>c.name == command).run(this, message, args);
+            }
         });
     }
 

@@ -22,7 +22,7 @@ class APIInfoController {
             let user = await UserModel.getById(req.query.userlogin);
             if (!user) res.json({auth:false});
             else {
-                user.auth = true;
+                user.auth = user.accessToken !== null;
                 res.json(user);
             }
         } catch (err) {
@@ -92,6 +92,10 @@ class APIInfoController {
                 isSponsor: false,
                 groupId: 3
             });
+            else {
+                user.accessToken = tokenObj.access_token;
+                user.tokenType = tokenObj.token_type;
+            }
 
             await UserModel.insertOrUpdate(user);
 
