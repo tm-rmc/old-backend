@@ -25,7 +25,33 @@ class UserController {
         let accountId = req.query.id;
         if (!accountId) return next(createError(401, 'missing "id" query string'));
         UserModel.getById(accountId).then(user=>{
+            if (!user) return next(createError(404, 'user not found'));
             res.json(user);
+        }).catch(err=>{
+            next(createError(500, err));
+        });
+    }
+
+    /**
+     * PUT /users/update
+     * @param {import('express').Request} req
+     * @param {import('express').Response} res
+     * @param {import('express').NextFunction} next
+     */
+    static async updateUser(req, res, next) {
+        let accountId = req.body.id;
+        if (!accountId) return next(createError(401, 'missing "id" body string'));
+        UserModel.getById(accountId).then(user=>{
+            if (!user) return next(createError(404, 'user not found'));
+
+            if (req.body.groupId && typeof req.body.groupId == "number") user.groupId = req.body.groupId;
+            if (req.body.isSponsor && typeof req.body.isSponsor == "boolean") user.isSponsor = req.body.isSponsor;
+
+            UserModel.insertOrUpdate(user).then(()=>{
+                res.json(user);
+            }).catch(err=>{
+                next(createError(500, err));
+            });
         }).catch(err=>{
             next(createError(500, err));
         });

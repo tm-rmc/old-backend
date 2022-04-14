@@ -93,6 +93,7 @@ class APIInfoController {
                 groupId: 3
             });
             else {
+                user.displayName = userDetails.displayName;
                 user.accessToken = tokenObj.access_token;
                 user.tokenType = tokenObj.token_type;
             }

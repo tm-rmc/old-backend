@@ -19,7 +19,7 @@ module.exports = (app) => {
         const token = req.headers.authorization.split(" ")[1],
             authedUser = UserModel.getFromToken(token);
 
-        if (!authedUser) throw createError(401, "Invalid token");
+        if (!authedUser) return next(createError(401, "Invalid token"));
 
         next();
     });
@@ -27,15 +27,15 @@ module.exports = (app) => {
     // Groups
     app.get('/groups/allGroups', GroupController.getAllGroups);
 
-    // At this point, the user must be an admin
+    // At this point, the user must be admin
     app.use((req,res,next)=>{
         const token = req.headers.authorization.split(" ")[1],
             authedUser = UserModel.getFromToken(token);
 
-        if (!authedUser) throw createError(401, "Invalid token");
+        if (!authedUser) return next(createError(401, "Invalid token"));
 
         const authedUserGroup = authedUser.Group();
-        if (!authedUserGroup.isAdminGroup) throw createError(403, "You are not an admin");
+        if (!authedUserGroup.isAdminGroup) return next(createError(403, "You are not an admin"));
 
         next();
     });
@@ -43,4 +43,5 @@ module.exports = (app) => {
     // Users
     app.get('/users/allUsers', UserController.getAllUsers);
     app.get('/users/get', UserController.getUser);
+    app.put('/users/update', UserController.updateUser);
 };
