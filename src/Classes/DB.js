@@ -37,11 +37,7 @@ class DB {
                     if (err) {
                         return reject(err);
                     } else {
-                        return resolve({
-                            err,
-                            results,
-                            fields
-                        });
+                        return resolve(results);
                     }
                 });
             }).catch((err) => {
