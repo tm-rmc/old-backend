@@ -12,7 +12,7 @@ class Discord {
         this.commandFiles = [];
 
         this.client.on('ready', ()=>{
-            this.logToChannel('📡 Logged in as ' + this.client.user.tag);
+            console.log('📡 Logged in as ' + this.client.user.tag);
             fs.readdirSync('./src/Discord/cmds').forEach(file => {
                 if (file.endsWith('.js')) {
                     let commandFile = require(`./cmds/${file}`);
