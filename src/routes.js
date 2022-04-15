@@ -14,10 +14,10 @@ module.exports = (app) => {
     app.get('/oauth/callback', OAuthController.callbackOAuth);
 
     // At this point, the user must be logged in
-    app.use((req,res,next)=>{
+    app.use(async (req,res,next)=>{
         if (!req.headers.authorization) return next(createError(401, "No authorization header"));
         const token = req.headers.authorization.split(" ")[1],
-            authedUser = UserModel.getFromToken(token);
+            authedUser = await UserModel.getFromToken(token);
 
         if (!authedUser) return next(createError(401, "Invalid token"));
 
@@ -28,13 +28,13 @@ module.exports = (app) => {
     app.get('/groups/allGroups', GroupController.getAllGroups);
 
     // At this point, the user must be admin
-    app.use((req,res,next)=>{
+    app.use(async (req,res,next)=>{
         const token = req.headers.authorization.split(" ")[1],
-            authedUser = UserModel.getFromToken(token);
+            authedUser = await UserModel.getFromToken(token);
 
         if (!authedUser) return next(createError(401, "Invalid token"));
 
-        const authedUserGroup = authedUser.Group();
+        const authedUserGroup = await authedUser.Group();
         if (!authedUserGroup.isAdminGroup) return next(createError(403, "You are not an admin"));
 
         next();

@@ -20,10 +20,18 @@ class APIInfoController {
         if (!req.query.userlogin) return next(createError(400, "Missing userlogin"));
         try {
             let user = await UserModel.getById(req.query.userlogin);
-            if (!user) res.json({auth:false});
+            if (!user) return res.json({auth:false});
             else {
-                user.auth = user.accessToken !== null;
-                res.json(user);
+                tmio.setUserAgent('(Greep#3022) RMC Online Services ['+process.env.DEPLOY_MODE || 'dev'+']');
+                let tmioPlayer = await tmio.players.get(user.accountId);
+
+                user.displayName = tmioPlayer.name;
+                user.clubTag = tmioPlayer.clubTag;
+
+                await UserModel.insertOrUpdate(user);
+
+                user.auth = user.accessToken !== null || typeof user.accessToken == "string";
+                return res.json(user);
             }
         } catch (err) {
             next(createError(500, err));
@@ -75,9 +83,13 @@ class APIInfoController {
         try {
             if (!fs.existsSync(cacheDir)) fs.mkdirSync(cacheDir);
             if (!fs.existsSync(statesJsonFilePath)) return next(createError(500, 'Error while checking state: Cache file not found.'));
-            let statesJson = JSON.parse(fs.readFileSync(statesJsonFilePath)),
-                accountId = Object.entries(statesJson).find(o=>o[1] == state)[0],
-                redirectUri = req.protocol + '://' + (req.headers["x-forwarded-host"] || req.headers.host) + '/oauth/callback',
+            let statesJson = JSON.parse(fs.readFileSync(statesJsonFilePath));
+            if (!Object.values(statesJson).some(v=>v == state)) res.status(500).send("<h1 style='text-align:center;color:red'>Invalid state, please retry the authentifiation process</h1>");
+
+            let accountId = Object.entries(statesJson).find(o=>o[1] == state)[0];
+            if (!accountId) res.status(500).send("<h1 style='text-align:center;color:red'>Invalid state, please retry the authentifiation process</h1>");
+
+            let redirectUri = req.protocol + '://' + (req.headers["x-forwarded-host"] || req.headers.host) + '/oauth/callback',
                 tokenObj = await OAuthModel.getAPIToken(req.query.code, redirectUri),
                 userDetails = await OAuthModel.getUserInfo(tokenObj),
                 user = await UserModel.getAll().then(uArr=>{
@@ -87,6 +99,7 @@ class APIInfoController {
             if (!user) user = new User({
                 accountId: userDetails.accountId,
                 displayName: userDetails.displayName,
+                clubTag: null,
                 accessToken: tokenObj.access_token,
                 tokenType: tokenObj.token_type,
                 isSponsor: false,
@@ -100,7 +113,10 @@ class APIInfoController {
 
             await UserModel.insertOrUpdate(user);
 
-            res.send("<h1 style='text-align:center'>Success! You can now close this tab.</h1>");
+            delete statesJson[user.accountId];
+            fs.writeFileSync(statesJsonFilePath, JSON.stringify(statesJson, null, 4));
+
+            res.send("<script>window.close()</script><h1 style='text-align:center'>Success! You can now close this tab.</h1>");
         } catch (err) {
             next(createError(500, err));
         }

@@ -33,7 +33,7 @@ class Group
      */
     async Users()
     {
-        return DB.query("SELECT * FROM users WHERE groupId = ?", this.Id).then(result => {
+        return DB.query("SELECT * FROM `users` WHERE groupId = ?", this.Id).then(result => {
             return result.map(r=>new User(r));
         });
     }

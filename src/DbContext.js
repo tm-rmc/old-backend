@@ -11,7 +11,7 @@ class DatabaseContext
     static async Users()
     {
         let arr = [];
-        const result = await DB.query("SELECT * FROM users");
+        const result = await DB.query("SELECT * FROM `users`");
         if (result.length > 0) {
             arr = result.map(data => new User(data));
         }
@@ -25,7 +25,7 @@ class DatabaseContext
     static async Groups()
     {
         let arr = [];
-        const result = await DB.query("SELECT * FROM groups");
+        const result = await DB.query("SELECT * FROM `groups`");
         if (result.length > 0) {
             arr = result.map(data => new Group(data));
         }

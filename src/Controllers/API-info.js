@@ -9,12 +9,17 @@ class APIInfoController {
      */
     static async getAPIInfo(req, res, next) {
         const pkg = require('../../package.json');
+        let dependencies = {};
+        Object.entries(pkg.dependencies).forEach(o=>{
+            const [key, value] = o;
+            dependencies[key] = value.replace(/\^|~/g,'');
+        })
         res.json({
             name: pkg.name,
             deployMode: process.env.DEPLOY_MODE || 'dev',
             version: pkg.version,
             description: pkg.description,
-            dependencies: pkg.dependencies,
+            dependencies,
             ["user-agent"]: req.headers["user-agent"],
             host: req.headers["x-forwarded-host"] || req.headers.host,
         });

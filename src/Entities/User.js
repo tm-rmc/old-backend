@@ -21,6 +21,12 @@ class User
         this.displayName = data.displayName;
 
         /**
+         * The user's club tag (if any)
+         * @type {?string}
+         */
+        this.clubTag = data.clubTag;
+
+        /**
          * is the user Sponsor?
          * @type {boolean}
          */
@@ -51,7 +57,7 @@ class User
      */
     async Group()
     {
-        return DB.query("SELECT * FROM group WHERE Id = ?", this.groupId).then(result => {
+        return DB.query("SELECT * FROM `groups` WHERE Id = ?", this.groupId).then(result => {
             if (result.length > 0){
                 return new Group(result[0]);
             } else {

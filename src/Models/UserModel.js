@@ -54,14 +54,16 @@ class UserModel
      */
     static async insertOrUpdate(user)
     {
-        DB.query("INSERT INTO users (accountId, displayName, isSponsor, groupId, accessToken, tokenType) VALUES (?,?,?,?,?,?) ON DUPLICATE KEY UPDATE displayName = ?, isSponsor = ?, groupId = ?, accessToken = ?, tokenType = ?", [
+        DB.query("INSERT INTO users (accountId, displayName, clubTag, isSponsor, groupId, accessToken, tokenType) VALUES (?,?,?,?,?,?,?) ON DUPLICATE KEY UPDATE displayName = ?, clubTag = ?, isSponsor = ?, groupId = ?, accessToken = ?, tokenType = ?", [
             user.accountId,
             user.displayName,
+            user.clubTag,
             user.isSponsor,
             user.groupId,
             user.accessToken,
             user.tokenType,
             user.displayName,
+            user.clubTag,
             user.isSponsor,
             user.groupId,
             user.accessToken,
