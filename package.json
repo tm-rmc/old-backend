@@ -11,14 +11,14 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/GreepTheSheep/node-rmc-api.git"
+    "url": "git+https://github.com/tm-rmc/backend.git"
   },
   "author": "",
   "license": "ISC",
   "bugs": {
-    "url": "https://github.com/GreepTheSheep/node-rmc-api/issues"
+    "url": "https://github.com/tm-rmc/backend/issues"
   },
-  "homepage": "https://github.com/GreepTheSheep/node-rmc-api#readme",
+  "homepage": "https://github.com/tm-rmc/backend#readme",
   "dependencies": {
     "body-parser": "^1.20.0",
     "cors": "^2.8.5",
