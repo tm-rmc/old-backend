@@ -10,8 +10,8 @@ module.exports = (app) => {
 
     // OAuth
     app.get('/oauth/getUserStatus', OAuthController.getOAuthStatus);
-    app.get('/oauth/login', OAuthController.loginOAuth);
     app.get('/oauth/callback', OAuthController.callbackOAuth);
+    app.get('/oauth/pluginSecret', OAuthController.getOAuthToken);
 
     // At this point, the user must be logged in
     app.use(async (req,res,next)=>{
@@ -23,6 +23,9 @@ module.exports = (app) => {
 
         next();
     });
+
+    // User
+    app.get('/users/me', UserController.getMe);
 
     // Groups
     app.get('/groups/allGroups', GroupController.getAllGroups);

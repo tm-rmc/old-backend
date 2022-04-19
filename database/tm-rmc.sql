@@ -29,9 +29,10 @@ DROP TABLE IF EXISTS `users`;
 CREATE TABLE IF NOT EXISTS `users` (
   `accountId` varchar(36) COLLATE utf8mb4_unicode_ci NOT NULL,
   `displayName` varchar(1024) COLLATE utf8mb4_unicode_ci NOT NULL,
-  `clubTag` varchar(64) COLLATE utf8mb4_unicode_ci NULL,
+  `clubTag` varchar(64) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `isSponsor` tinyint(1) NOT NULL DEFAULT 0,
   `groupId` int(11) NOT NULL DEFAULT 3,
+  `sessionId` varchar(36) COLLATE utf8mb4_unicode_ci NOT NULL,
   `accessToken` varchar(1024) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `tokenType` varchar(16) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   PRIMARY KEY (`accountId`)

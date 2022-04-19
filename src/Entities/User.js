@@ -36,7 +36,13 @@ class User
          * The user's Group Id
          * @type {number}
          */
-         this.groupId = data.groupId;
+        this.groupId = data.groupId;
+
+        /**
+         * The user's session Id
+         * @type {string}
+         */
+        this.sessionId = data.sessionId;
 
         /**
          * The user's accessToken

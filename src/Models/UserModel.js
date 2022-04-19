@@ -48,18 +48,30 @@ class UserModel
     }
 
     /**
+     * Get from its sessionId
+     * @param {string} sessionId
+     */
+    static async getFromSessionId(sessionId)
+    {
+        return DbContext.Users().then(users => {
+            return users.find(user => user.sessionId === sessionId);
+        });
+    }
+
+    /**
      * Create or update a user if already created
      * @param {User} user
      * @returns {Promise<User>}
      */
     static async insertOrUpdate(user)
     {
-        DB.query("INSERT INTO users (accountId, displayName, clubTag, isSponsor, groupId, accessToken, tokenType) VALUES (?,?,?,?,?,?,?) ON DUPLICATE KEY UPDATE displayName = ?, clubTag = ?, isSponsor = ?, groupId = ?, accessToken = ?, tokenType = ?", [
+        DB.query("INSERT INTO users (accountId, displayName, clubTag, isSponsor, groupId, sessionId, accessToken, tokenType) VALUES (?,?,?,?,?,?,?) ON DUPLICATE KEY UPDATE displayName = ?, clubTag = ?, isSponsor = ?, groupId = ?, accessToken = ?, tokenType = ?", [
             user.accountId,
             user.displayName,
             user.clubTag,
             user.isSponsor,
             user.groupId,
+            user.sessionId,
             user.accessToken,
             user.tokenType,
             user.displayName,

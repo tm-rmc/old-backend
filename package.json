@@ -28,7 +28,8 @@
     "http-errors": "^2.0.0",
     "morgan": "^1.10.0",
     "mysql": "^2.18.1",
-    "trackmania.io": "^3.1.0"
+    "trackmania.io": "^3.1.0",
+    "uuid": "^8.3.2"
   },
   "devDependencies": {
     "eslint": "^8.13.0",

@@ -3,6 +3,21 @@ const User = require('../Entities/User'),
     createError = require('http-errors');
 
 class UserController {
+
+    /**
+     * GET /users/me
+     * @param {import('express').Request} req
+     * @param {import('express').Response} res
+     * @param {import('express').NextFunction} next
+     */
+    static async getMe(req, res, next) {
+        const token = req.headers.authorization.split(" ")[1],
+            authedUser = await UserModel.getFromToken(token);
+
+        if (!authedUser) return next(createError(401, "Invalid token"));
+        res.json(authedUser);
+    }
+
     /**
      * GET /users/allUsers
      * @param {import('express').Request} req
