@@ -43,18 +43,6 @@ class User
          * @type {string}
          */
         this.sessionId = data.sessionId;
-
-        /**
-         * The user's accessToken
-         * @type {string}
-         */
-        this.accessToken = data.accessToken;
-
-        /**
-         * The user's token type
-         * @type {string}
-         */
-        this.tokenType = data.tokenType;
     }
 
     /**

@@ -1,10 +1,12 @@
 const TMOauthBaseURL = "https://api.trackmania.com/",
+    TMOauthLoginURL = TMOauthBaseURL + "oauth/authorize?",
     TMOauthTokenURL = TMOauthBaseURL + "api/access_token",
     UserInfoURL = TMOauthBaseURL + "api/user",
     fetch = require('node-fetch');
 
 class OAuthModel
 {
+
     /**
      * @param {string} code
      * @param {string} redirectUri

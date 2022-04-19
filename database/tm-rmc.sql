@@ -32,8 +32,6 @@ CREATE TABLE IF NOT EXISTS `users` (
   `clubTag` varchar(64) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `isSponsor` tinyint(1) NOT NULL DEFAULT 0,
   `groupId` int(11) NOT NULL DEFAULT 3,
-  `sessionId` varchar(36) COLLATE utf8mb4_unicode_ci NOT NULL,
-  `accessToken` varchar(1024) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
-  `tokenType` varchar(16) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `sessionId` varchar(128) COLLATE utf8mb4_unicode_ci NULL,
   PRIMARY KEY (`accountId`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;

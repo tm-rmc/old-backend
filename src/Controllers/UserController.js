@@ -11,10 +11,12 @@ class UserController {
      * @param {import('express').NextFunction} next
      */
     static async getMe(req, res, next) {
-        const token = req.headers.authorization.split(" ")[1],
-            authedUser = await UserModel.getFromToken(token);
+        const sessionId = req.headers.authorization.split(" ")[1],
+            authedUser = await UserModel.getFromSessionId(sessionId);
 
-        if (!authedUser) return next(createError(401, "Invalid token"));
+        if (!authedUser) return next(createError(401, "Invalid sessionId"));
+
+        delete authedUser["sessionId"];
         res.json(authedUser);
     }
 
@@ -26,7 +28,10 @@ class UserController {
      */
     static async getAllUsers(req, res, next) {
         UserModel.getAll().then(users=>{
-            res.json(users);
+            res.json(users.map(user=>{
+                delete user["sessionId"];
+                return user;
+            }));
         });
     }
 
@@ -41,6 +46,7 @@ class UserController {
         if (!accountId) return next(createError(401, 'missing "id" query string'));
         UserModel.getById(accountId).then(user=>{
             if (!user) return next(createError(404, 'user not found'));
+            delete user["sessionId"];
             res.json(user);
         }).catch(err=>{
             next(createError(500, err));
@@ -63,6 +69,7 @@ class UserController {
             if (req.body.isSponsor && typeof req.body.isSponsor == "boolean") user.isSponsor = req.body.isSponsor;
 
             UserModel.insertOrUpdate(user).then(()=>{
+                delete user["sessionId"];
                 res.json(user);
             }).catch(err=>{
                 next(createError(500, err));

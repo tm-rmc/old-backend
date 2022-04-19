@@ -8,9 +8,12 @@ const createError = require('http-errors'),
     OAuthModel = require('../Models/OAuthModel'),
     { v4: uuid } = require('uuid'),
     {Client} = require('trackmania.io'),
-    tmio = new Client();
+    tmio = new Client(),
+    discord = require('../Discord').getDiscordClient();
 
-class APIInfoController {
+tmio.setUserAgent('(Greep#3022) RMC Online Services ['+process.env.DEPLOY_MODE || 'dev'+']');
+
+class OAuthController {
     /**
      * GET /oauth/getUserStatus
      * @param {import('express').Request} req
@@ -23,9 +26,15 @@ class APIInfoController {
             if (!req.query.login) return next(createError(400, "Missing login"));
             if (!req.query.webid) return next(createError(400, "Missing webid"));
             if (tmio.players.toLogin(req.query.webid) != req.query.login) return next(createError(400, "Invalid webid"));
-            let user = await UserModel.getById(req.query.webid);
-            if (!req.query.sessionId || !user) {
-                let state = crypto.randomBytes(64).toString('hex'),
+
+            // Check if the user is already in the database, firstly by its sessionId, then by its accountId
+            let user;
+            if (req.query.sessionid) user = await UserModel.getFromSessionId(req.query.sessionid);
+
+            // If the user is not in the database, we send an OAuth url to the user
+            // else we send the user's sessionId (the plugin will store it)
+            if (!user) {
+                let state = 'rmc-' + uuid(),
                     statesJson = {},
                     cacheDir = "./.cache",
                     statesJsonFilePath = cacheDir + "/oauthUserStates.json"
@@ -42,13 +51,19 @@ class APIInfoController {
                 params.append('redirect_uri', encodeURI(req.protocol + '://' + (req.headers["x-forwarded-host"] || req.headers.host) + '/oauth/callback'));
                 params.append('state', state);
 
+                if (discord) {
+                    discord.logToChannel(`New user ${req.query.name} (\`${req.query.webid}\`) requested OAuth${req.query.pluginVersion ? ` with plugin version ${req.query.pluginVersion}` : ''}`);
+                }
+
                 res.json({
                     login: TMOauthLoginURL + params.toString(),
                     state,
                     auth: false
                 });
             } else {
-                res.json({auth: true});
+                res.json({
+                    auth: true
+                });
             }
         } catch (err) {
             next(createError(500, err));
@@ -75,8 +90,6 @@ class APIInfoController {
             let accountId = Object.entries(statesJson).find(o=>o[1] == state)[0];
             if (!accountId) res.status(500).send("<h1 style='text-align:center;color:red'>Invalid state, please retry the authentifiation process</h1>");
 
-            tmio.setUserAgent('(Greep#3022) RMC Online Services ['+process.env.DEPLOY_MODE || 'dev'+']');
-
             let redirectUri = req.protocol + '://' + (req.headers["x-forwarded-host"] || req.headers.host) + '/oauth/callback',
                 tokenObj = await OAuthModel.getAPIToken(req.query.code, redirectUri),
                 userDetails = await OAuthModel.getUserInfo(tokenObj),
@@ -87,23 +100,21 @@ class APIInfoController {
                 accountId: userDetails.accountId,
                 displayName: userDetails.displayName,
                 clubTag: tmioPlayer.clubTag,
-                sessionId: uuid(),
-                accessToken: tokenObj.access_token,
-                tokenType: tokenObj.token_type,
+                sessionId: crypto.randomBytes(64).toString('hex'),
                 isSponsor: false,
                 groupId: 3
             });
             else {
                 user.displayName = userDetails.displayName;
                 user.clubTag = tmioPlayer.clubTag;
-                user.accessToken = tokenObj.access_token;
-                user.tokenType = tokenObj.token_type;
+                user.sessionId = crypto.randomBytes(64).toString('hex');
             }
 
             await UserModel.insertOrUpdate(user);
 
-            delete statesJson[user.accountId];
-            fs.writeFileSync(statesJsonFilePath, JSON.stringify(statesJson, null, 4));
+            if (discord) {
+                discord.logToChannel(`User ${user.displayName} (\`${user.accountId}\`) has been authenticated with OAuth`);
+            }
 
             res.send("<script>window.close()</script><h1 style='text-align:center'>Success! You can now close this tab.</h1>");
         } catch (err) {
@@ -117,15 +128,50 @@ class APIInfoController {
      * @param {import('express').Response} res
      * @param {import('express').NextFunction} next
      */
-    static async getOAuthToken(req, res, next) {
-        if (!req.query.sessionid) return next(createError(400, "Missing sessionid"));
-        let user = await UserModel.getFromSessionId(req.query.sessionid);
-        if (!user) return next(createError(400, "Invalid sessionid"));
+    static async getSessionId(req, res, next) {
+        if (!req.query.state) return next(createError(400, "Missing state"));
+        let state = req.query.state,
+            cacheDir = "./.cache",
+            statesJsonFilePath = cacheDir + "/oauthUserStates.json"
+
+        if (!fs.existsSync(cacheDir)) fs.mkdirSync(cacheDir);
+        if (!fs.existsSync(statesJsonFilePath)) return next(createError(500, 'Error while checking state: Cache file not found.'));
+        let statesJson = JSON.parse(fs.readFileSync(statesJsonFilePath));
+        if (!Object.values(statesJson).some(v=>v == state)) return next(createError(400, 'Invalid state.'));
+        let accountId = Object.entries(statesJson).find(o=>o[1] == state)[0];
+        if (!accountId) return next(createError(400, 'Invalid state.'));
+        let user = await UserModel.getById(accountId);
+        if (!user) return next(createError(400, "Invalid state"));
+
+        if (discord) {
+            discord.logToChannel(`✅ Login by user ${user.displayName} (\`${user.accountId}\`)${req.query.pluginVersion ? ` with plugin version ${req.query.pluginVersion}` : ''}`);
+        }
         res.json({
-            access_token: user.accessToken,
-            token_type: user.tokenType
+            sessionid: user.sessionId
         });
+    }
+
+    /**
+     * POST /oauth/logout
+     * @param {import('express').Request} req
+     * @param {import('express').Response} res
+     * @param {import('express').NextFunction} next
+     */
+    static async logout(req, res, next) {
+        try {
+            let {sessionid} = req.cookies || req.body;
+            if (!sessionid) return next(createError(400, "Missing sessionid"));
+            let user = await UserModel.getFromSessionId(sessionid);
+            if (!user) return next(createError(400, "Invalid sessionid"));
+            user.sessionId = null;
+            await UserModel.insertOrUpdate(user);
+            res.json({
+                success: true
+            });
+        } catch (err) {
+            next(createError(500, err));
+        }
     }
 }
 
-module.exports = APIInfoController;
+module.exports = OAuthController;

@@ -6,14 +6,10 @@ const express = require('express'),
     app = express(),
     logger = require('morgan'),
     port = process.env.PORT || 3000,
-    Discord = require('./Discord');
+    discord = require('./Discord');
 
-let dcClient = null;
-
-if ('DISCORD_TOKEN' in process.env) {
-    dcClient = new Discord();
-    app.use(dcClient.loggerToDiscord());
-}
+let dcClient = discord.getDiscordClient();
+if (dcClient) app.use(dcClient.loggerToDiscord());
 
 app.use(bosyParser.json());
 app.use(logger('combined'));

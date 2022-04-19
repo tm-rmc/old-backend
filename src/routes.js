@@ -11,15 +11,17 @@ module.exports = (app) => {
     // OAuth
     app.get('/oauth/getUserStatus', OAuthController.getOAuthStatus);
     app.get('/oauth/callback', OAuthController.callbackOAuth);
-    app.get('/oauth/pluginSecret', OAuthController.getOAuthToken);
+
+    // login
+    app.get('/oauth/pluginSecret', OAuthController.getSessionId);
 
     // At this point, the user must be logged in
     app.use(async (req,res,next)=>{
         if (!req.headers.authorization) return next(createError(401, "No authorization header"));
-        const token = req.headers.authorization.split(" ")[1],
-            authedUser = await UserModel.getFromToken(token);
+        const sessionId = req.headers.authorization.split(" ")[1],
+            authedUser = await UserModel.getFromSessionId(sessionId);
 
-        if (!authedUser) return next(createError(401, "Invalid token"));
+        if (!authedUser) return next(createError(401, "Invalid sessionId"));
 
         next();
     });
@@ -30,12 +32,15 @@ module.exports = (app) => {
     // Groups
     app.get('/groups/allGroups', GroupController.getAllGroups);
 
+    // Logout
+    app.post('/oauth/logout', OAuthController.logout);
+
     // At this point, the user must be admin
     app.use(async (req,res,next)=>{
-        const token = req.headers.authorization.split(" ")[1],
-            authedUser = await UserModel.getFromToken(token);
+        const sessionId = req.headers.authorization.split(" ")[1],
+            authedUser = await UserModel.getFromSessionId(sessionId);
 
-        if (!authedUser) return next(createError(401, "Invalid token"));
+        if (!authedUser) return next(createError(401, "Invalid sessionId"));
 
         const authedUserGroup = await authedUser.Group();
         if (!authedUserGroup.isAdminGroup) return next(createError(403, "You are not an admin"));

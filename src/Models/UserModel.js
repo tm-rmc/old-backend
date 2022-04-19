@@ -15,8 +15,7 @@ class UserModel
         const users = await DbContext.Users();
         const usersWithoutCode = [];
         users.forEach(user => {
-            delete user.accessToken;
-            delete user.tokenType;
+            delete user.sessionId;
             usersWithoutCode.push(user);
         });
         return usersWithoutCode;
@@ -33,17 +32,6 @@ class UserModel
         if (accountId.length != 36) throw "Invalid account ID";
         return DbContext.Users().then(users => {
             return users.find(user => user.accountId === accountId);
-        });
-    }
-
-    /**
-     * Get from a token
-     * @param {string} token
-     */
-    static async getFromToken(token)
-    {
-        return DbContext.Users().then(users => {
-            return users.find(user => user.accessToken === token);
         });
     }
 
@@ -65,21 +53,18 @@ class UserModel
      */
     static async insertOrUpdate(user)
     {
-        DB.query("INSERT INTO users (accountId, displayName, clubTag, isSponsor, groupId, sessionId, accessToken, tokenType) VALUES (?,?,?,?,?,?,?) ON DUPLICATE KEY UPDATE displayName = ?, clubTag = ?, isSponsor = ?, groupId = ?, accessToken = ?, tokenType = ?", [
+        DB.query("INSERT INTO users (accountId, displayName, clubTag, isSponsor, groupId, sessionId) VALUES (?,?,?,?,?,?) ON DUPLICATE KEY UPDATE displayName = ?, clubTag = ?, isSponsor = ?, groupId = ?, sessionId = ?", [
             user.accountId,
             user.displayName,
             user.clubTag,
             user.isSponsor,
             user.groupId,
             user.sessionId,
-            user.accessToken,
-            user.tokenType,
             user.displayName,
             user.clubTag,
             user.isSponsor,
             user.groupId,
-            user.accessToken,
-            user.tokenType
+            user.sessionId
         ]).then(()=>{
             return user;
         });
