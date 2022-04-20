@@ -137,11 +137,13 @@ class OAuthController {
         if (!fs.existsSync(cacheDir)) fs.mkdirSync(cacheDir);
         if (!fs.existsSync(statesJsonFilePath)) return next(createError(500, 'Error while checking state: Cache file not found.'));
         let statesJson = JSON.parse(fs.readFileSync(statesJsonFilePath));
-        if (!Object.values(statesJson).some(v=>v == state)) return next(createError(400, 'Invalid state.'));
+        if (!Object.values(statesJson).some(v=>v == state)) return next(createError(400, 'Invalid state. (is not in the cache)'));
         let accountId = Object.entries(statesJson).find(o=>o[1] == state)[0];
-        if (!accountId) return next(createError(400, 'Invalid state.'));
+        if (!accountId) return next(createError(400, 'Invalid state. (not linked to an account)'));
         let user = await UserModel.getById(accountId);
-        if (!user) return next(createError(400, "Invalid state"));
+        if (!user) return res.json({
+            sessionid: null
+        });
 
         if (discord) {
             discord.logToChannel(`✅ Login by user ${user.displayName} (\`${user.accountId}\`)${req.query.pluginVersion ? ` with plugin version ${req.query.pluginVersion}` : ''}`);
@@ -159,7 +161,7 @@ class OAuthController {
      */
     static async logout(req, res, next) {
         try {
-            let {sessionid} = req.cookies || req.body;
+            let sessionid = req.body.sessionid;
             if (!sessionid) return next(createError(400, "Missing sessionid"));
             let user = await UserModel.getFromSessionId(sessionid);
             if (!user) return next(createError(400, "Invalid sessionid"));
