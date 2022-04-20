@@ -25,7 +25,7 @@ class OAuthController {
             if (!req.query.name) return next(createError(400, "Missing name"));
             if (!req.query.login) return next(createError(400, "Missing login"));
             if (!req.query.webid) return next(createError(400, "Missing webid"));
-            if (tmio.players.toLogin(req.query.webid) != req.query.login) return next(createError(400, "Invalid webid"));
+            // if (tmio.players.toAccountId(req.query.login) != req.query.webid) return next(createError(400, "Invalid webid"));
 
             // Check if the user is already in the database, firstly by its sessionId, then by its accountId
             let user;
