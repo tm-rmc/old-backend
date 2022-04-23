@@ -3,7 +3,8 @@ const createError = require('http-errors'),
     APIInfos = require('./Controllers/API-info'),
     OAuthController = require('./Controllers/OAuthController'),
     UserController = require('./Controllers/UserController'),
-    GroupController = require('./Controllers/GroupController');
+    GroupController = require('./Controllers/GroupController'),
+    GamemodeController = require('./Controllers/GamemodeController');
 
 module.exports = (app) => {
     app.get('/', APIInfos.getAPIInfo);
@@ -11,10 +12,16 @@ module.exports = (app) => {
     // OAuth
     app.get('/oauth/getUserStatus', OAuthController.getOAuthStatus);
     app.get('/oauth/callback', OAuthController.callbackOAuth);
-
     // login
     app.get('/oauth/pluginSecret', OAuthController.getSessionId);
 
+    // Groups
+    app.get('/groups/allGroups', GroupController.getAllGroups);
+
+    // Gamemodes
+    app.get('/gamemodes/all', GamemodeController.getAllGamemodes);
+
+    // -----------------------------------------
     // At this point, the user must be logged in
     app.use(async (req,res,next)=>{
         if (!req.headers.authorization) return next(createError(401, "No authorization header"));
@@ -29,12 +36,10 @@ module.exports = (app) => {
     // User
     app.get('/users/me', UserController.getMe);
 
-    // Groups
-    app.get('/groups/allGroups', GroupController.getAllGroups);
-
     // Logout
     app.post('/oauth/logout', OAuthController.logout);
 
+    // -------------------------------------------
     // At this point, the user must be admin
     app.use(async (req,res,next)=>{
         const sessionId = req.headers.authorization.split(" ")[1],
