@@ -51,10 +51,6 @@ class OAuthController {
                 params.append('redirect_uri', encodeURI(req.protocol + '://' + (req.headers["x-forwarded-host"] || req.headers.host) + '/oauth/callback'));
                 params.append('state', state);
 
-                if (discord) {
-                    discord.logToChannel(`New user ${req.query.name} (\`${req.query.webid}\`) requested OAuth${req.query.pluginVersion ? ` with plugin version ${req.query.pluginVersion}` : ''}`);
-                }
-
                 res.json({
                     login: TMOauthLoginURL + params.toString(),
                     state,
