@@ -27,10 +27,10 @@ class DB {
     /**
      * Execute a query
      * @param {string} sql SQL query
-     * @param {string | Array<string>} values Values to be inserted
+     * @param {string | Array<string>} [values=[]] Values to be inserted
      * @returns {Promise<mysql.queryCallback>}
      */
-    static async query(sql, values) {
+    static async query(sql, values = []) {
         return new Promise((resolve, reject) => {
             DB.connect().then((pool) => {
                 pool.query(sql, values, (err, results, fields) => {
