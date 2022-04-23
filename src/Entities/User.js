@@ -30,7 +30,7 @@ class User
          * is the user Sponsor?
          * @type {boolean}
          */
-        this.isSponsor = data.isSponsor;
+        this.isSponsor = typeof data.isSponsor === "boolean" ? data.isSponsor : (typeof data.isSponsor === "number" ? data.isSponsor === 1 : false);
 
         /**
          * The user's Group Id

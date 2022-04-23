@@ -24,7 +24,7 @@ class Group
          * is a administartive group?
          * @type {boolean}
          */
-        this.isAdminGroup = data.isAdminGroup;
+        this.isAdminGroup = typeof data.isAdminGroup === "boolean" ? data.isAdminGroup : (typeof data.isAdminGroup === "number" ? data.isAdminGroup === 1 : false);
     }
 
     /**
