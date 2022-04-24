@@ -53,6 +53,7 @@ CREATE TABLE IF NOT EXISTS `rooms` (
   `name` varchar(64) COLLATE utf8mb4_unicode_ci NOT NULL,
   `password` varchar(64) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `creatorId` varchar(36) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `isActive` tinyint(1) NOT NULL DEFAULT 1,
   `gamemode` int(11) NOT NULL,
   `gamemodeSettings` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NOT NULL DEFAULT '{}',
   `playersId` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NOT NULL DEFAULT '[]',

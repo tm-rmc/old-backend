@@ -32,12 +32,12 @@ class GamemodeModel
      */
     static async insert(gamemode)
     {
-        DB.query("INSERT INTO gamemodes (name, isEnabled, isSponsorOnly) VALUES (?,?,?,?)", [
+        return DB.query("INSERT INTO gamemodes (name, isEnabled, isSponsorOnly) VALUES (?,?,?,?)", [
             gamemode.name,
             gamemode.isEnabled,
             gamemode.isSponsorOnly
         ]).then(()=>{
-            return DB.query("SELECT * FROM gamemodes WHERE id = LAST_INSERT_ID()").then(result => {
+            return DB.query("SELECT * FROM gamemodes ORDER BY id DESC LIMIT 1").then(result => {
                 return new Gamemode(result[0]);
             });
         });

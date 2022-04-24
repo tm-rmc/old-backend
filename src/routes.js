@@ -4,7 +4,8 @@ const createError = require('http-errors'),
     OAuthController = require('./Controllers/OAuthController'),
     UserController = require('./Controllers/UserController'),
     GroupController = require('./Controllers/GroupController'),
-    GamemodeController = require('./Controllers/GamemodeController');
+    GamemodeController = require('./Controllers/GamemodeController'),
+    RoomController = require('./Controllers/RoomController');
 
 module.exports = (app) => {
     app.get('/', APIInfos.getAPIInfo);
@@ -35,6 +36,13 @@ module.exports = (app) => {
 
     // User
     app.get('/users/me', UserController.getMe);
+
+    // Rooms
+    app.get('/rooms/all', RoomController.getAllRooms);
+    app.post('/rooms/create', RoomController.createRoom);
+    app.put('/rooms/edit/:id', RoomController.editRoom);
+    app.post('/rooms/join/:id', RoomController.joinRoom);
+    app.post('/rooms/leave/:id', RoomController.leaveRoom);
 
     // Logout
     app.post('/oauth/logout', OAuthController.logout);

@@ -34,22 +34,28 @@ class Room
         this.creatorId = data.creatorId;
 
         /**
+         * Whether the room is active
+         * @type {boolean}
+         */
+        this.isActive = typeof data.isActive === "boolean" ? data.isActive : (typeof data.isActive === "number" ? data.isActive === 1 : false);
+
+        /**
          * The room gamemode id
          * @type {number}
          */
-        this.gamemodeId = data.gamemode;
+        this.gamemodeId = data.gamemodeId ? data.gamemodeId : data.gamemode;
 
         /**
          * The room's gamemode settings
          * @type {Object}
          */
-        this.gamemodeSettings = JSON.parse(data.gamemodeSettings);
+        this.gamemodeSettings = typeof data.gamemodeSettings == "string" ? JSON.parse(data.gamemodeSettings) : (typeof data.gamemodeSettings == "object" ? data.gamemodeSettings : {});
 
         /**
          * The players id in the room
          * @type {Array<string>}
          */
-        this.playersId = JSON.parse(data.playersId);
+        this.playersId = typeof data.playersId == "string" ? JSON.parse(data.playersId) : (Array.isArray(data.playersId) ? data.playersId : [this.creatorId]);
     }
 
     /**
