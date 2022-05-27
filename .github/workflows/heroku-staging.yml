@@ -1,9 +1,6 @@
 name: Deploy to Heroku - Staging
 
 on:
-  push:
-    branches:
-      - develop
   workflow_dispatch:
 
 jobs:
